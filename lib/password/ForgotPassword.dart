@@ -39,56 +39,62 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Recuperar Contraseña')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const Text(
-                'Ingresa tu correo electrónico para recibir un enlace de recuperación',
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Input(
-                controller: _emailController,
-                label: 'Correo Electrónico',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese su email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Ingrese un email válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              if (_emailSent)
-                const Column(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green, size: 50),
-                    SizedBox(height: 10),
-                    Text(
-                      'Correo enviado con éxito. Revisa tu bandeja de entrada.',
-                      style: TextStyle(color: Colors.green),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              if (!_emailSent)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _sendResetEmail,
-                    child: _isLoading
-                        ? const CircularProgressIndicator()
-                        : const Text('Enviar Enlace'),
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Ingresa tu correo electrónico para recibir un enlace de recuperación',
+                    style: TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-            ],
+                  const SizedBox(height: 20),
+                  Input(
+                    controller: _emailController,
+                    label: 'Correo Electrónico',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese su email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Ingrese un email válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  if (_emailSent)
+                    const Column(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green, size: 50),
+                        SizedBox(height: 10),
+                        Text(
+                          'Correo enviado con éxito. Revisa tu bandeja de entrada.',
+                          style: TextStyle(color: Colors.green),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  if (!_emailSent)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _sendResetEmail,
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text('Enviar Enlace'),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

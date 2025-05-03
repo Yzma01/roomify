@@ -22,7 +22,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   String? _role;
-  bool _showMessage = false;
 
   final AuthService _authService = AuthService();
 
@@ -47,12 +46,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _userPasswordController.text,
         fullName: _userFullNameController.text,
         phone: _userPhoneController.text,
+        role: _role!,
       );
 
       if (user != null) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
       );
@@ -68,124 +69,129 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(60.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              SizedBox(height: 60),
-              Text("Registro", style: TextStyle(fontSize: 60)),
-              SizedBox(height: 60),
-              //Name
-              Input(
-                controller: _userFullNameController,
-
-                prefixIcon: Icon(Icons.person),
-                label: 'Nombre Completo',
-                validator:
-                    (value) => value!.isEmpty ? 'Ingrese su nombre' : null,
-              ),
-              //Email
-              Input(
-                controller: _userEmailController,
-                prefixIcon: Icon(Icons.email),
-                label: 'Correo Electrónico',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  return validateEmail(value);
-                },
-              ),
-              //Phone
-              Input(
-                controller: _userPhoneController,
-                prefixIcon: Icon(Icons.phone),
-                label: 'Teléfono',
-                keyboardType: TextInputType.phone,
-                validator:
-                    (value) => value!.isEmpty ? 'Ingrese su teléfono' : null,
-              ),
-              //Password
-              Input(
-                controller: _userPasswordController,
-                prefixIcon: Icon(Icons.lock),
-                label: 'Contraseña',
-                obscureText: _obscurePassword,
-                validator: (value) {
-                  if (value!.isEmpty) return 'Ingrese una contraseña';
-                  if (value.length < 6) return 'Mínimo 6 caracteres';
-                  return null;
-                },
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Center(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Registro", style: TextStyle(fontSize: 60)),
+                  SizedBox(height: 60),
+                  //Name
+                  Input(
+                    controller: _userFullNameController,
+            
+                    prefixIcon: Icon(Icons.person),
+                    label: 'Nombre Completo',
+                    validator:
+                        (value) => value!.isEmpty ? 'Ingrese su nombre' : null,
                   ),
-                  onPressed:
-                      () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-              //Confirm Password
-              Input(
-                controller: _confirmPasswordController,
-                prefixIcon: Icon(Icons.lock),
-                label: 'Confirmar Contraseña',
-                obscureText: _obscureConfirmPassword,
-                validator: (value) {
-                  if (!_passwordsMatch()) return 'Las contraseñas no coinciden';
-                  return null;
-                },
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureConfirmPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off,
+                  //Email
+                  Input(
+                    controller: _userEmailController,
+                    prefixIcon: Icon(Icons.email),
+                    label: 'Correo Electrónico',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      return validateEmail(value);
+                    },
                   ),
-                  onPressed:
-                      () => setState(
-                        () =>
-                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                  //Phone
+                  Input(
+                    controller: _userPhoneController,
+                    prefixIcon: Icon(Icons.phone),
+                    label: 'Teléfono',
+                    keyboardType: TextInputType.phone,
+                    validator:
+                        (value) => value!.isEmpty ? 'Ingrese su teléfono' : null,
+                  ),
+                  //Password
+                  Input(
+                    controller: _userPasswordController,
+                    prefixIcon: Icon(Icons.lock),
+                    label: 'Contraseña',
+                    obscureText: _obscurePassword,
+                    validator: (value) {
+                      if (value!.isEmpty) return 'Ingrese una contraseña';
+                      if (value.length < 6) return 'Mínimo 6 caracteres';
+                      return null;
+                    },
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
                       ),
-                ),
-              ),
-              ComboBox(
-                items: ['Estudiante', 'Arrendatario'],
-                icon: Icons.list,
-                label: 'Role',
-                onChanged: (value){
-                  _role = value;
-                },
-                validator: (value){
-                  if(value == null || value.isEmpty){
-                    return 'Seleccione un role';
-                  }
-                },
-              ),
-              const SizedBox(height: 40),
-              Button(
-                isLoading: _isLoading,
-                onPressed: validateForm,
-                label: 'Crear Cuenta',
-                fontSize: 20,
-              ),
-              
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: SizedBox(
-                  child: IconButton(
-                    onPressed:
-                        () => Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (Route<dynamic> route) => false,
-                        ),
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: const Color.fromARGB(160, 0, 0, 0),
-                      size: 50,
+                      onPressed:
+                          () =>
+                              setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                ),
+                  //Confirm Password
+                  Input(
+                    controller: _confirmPasswordController,
+                    prefixIcon: Icon(Icons.lock),
+                    label: 'Confirmar Contraseña',
+                    obscureText: _obscureConfirmPassword,
+                    validator: (value) {
+                      if (!_passwordsMatch()) return 'Las contraseñas no coinciden';
+                      return null;
+                    },
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed:
+                          () => setState(
+                            () =>
+                                _obscureConfirmPassword = !_obscureConfirmPassword,
+                          ),
+                    ),
+                  ),
+                  ComboBox(
+                    items: ['Estudiante', 'Arrendatario'],
+                    icon: Icons.list,
+                    label: 'Role',
+                    onChanged: (value){
+                      _role = value;
+                    },
+                    validator: (value){
+                      if(value == null || value.isEmpty){
+                        return 'Seleccione un role';
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  Button(
+                    isLoading: _isLoading,
+                    onPressed: validateForm,
+                    label: 'Crear Cuenta',
+                    fontSize: 20,
+                  ),
+                  
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: SizedBox(
+                      child: IconButton(
+                        onPressed:
+                            () => Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/',
+                              (Route<dynamic> route) => false,
+                            ),
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: const Color.fromARGB(160, 0, 0, 0),
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -195,9 +201,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void validateForm() {
     if (_formKey.currentState!.validate()) {
       if (_role == null) {
-        setState(() {
-          _showMessage = true;
-        });
         return;
       }
       _registerUser();

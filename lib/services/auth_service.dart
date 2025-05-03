@@ -37,10 +37,11 @@ class AuthService {
 
   // Método mejorado para registrar usuario
   Future<User?> registerUser({
-    required String email,
-    required String password,
     required String fullName,
+    required String email,
     required String phone,
+    required String password,
+    required String role,
   }) async {
     try {
       // 1. Crear usuario en Firebase Auth
@@ -59,8 +60,8 @@ class AuthService {
           'email': email.trim(),
           'name': fullName.trim(),
           'phone': phone.trim(),
+          'role': role.trim(),
           'createdAt': FieldValue.serverTimestamp(), // Mejor usar serverTimestamp
-          'role': 'user',
           'uid': user.uid, // Añadir UID explícitamente
         });
 

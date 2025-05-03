@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 class Input extends StatelessWidget {
   final TextEditingController controller;
   final String label;
-  final String? Function(String?) validator;
   final bool obscureText;
   final TextInputType? keyboardType;
-  final Widget? suffixIcon;
-  final Widget? prefixIcon;
   final EdgeInsetsGeometry? padding;
   final BoxDecoration? decoration;
+  final String? Function(String?) validator;
+  final Widget? suffixIcon;
+  final Widget? prefixIcon;
+  final bool centerLabel;
 
   const Input({
     Key? key,
@@ -20,6 +21,7 @@ class Input extends StatelessWidget {
     this.keyboardType,
     this.suffixIcon,
     this.prefixIcon,
+    this.centerLabel = false,
     this.padding = const EdgeInsets.only(bottom: 16.0),
     this.decoration,
   }) : super(key: key);
@@ -48,13 +50,15 @@ class Input extends StatelessWidget {
           keyboardType: keyboardType,
           validator: validator,
           decoration: InputDecoration(
-            labelText: label,
+            labelText: centerLabel ? null : label,
+            label: centerLabel ? Center(child: Text(label)) : null,
+
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide.none, // elimina borde para que sombra se vea limpia
+              borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Colors.white, // fondo interno del Input
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 16,
