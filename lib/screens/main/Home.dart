@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:roomify/components/home/Filters.dart';
-import 'package:roomify/components/home/FooterBar.dart';
+import 'package:roomify/components/home/Places.dart';
 import 'package:roomify/components/inputs/Search.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,7 +12,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _searchValue = TextEditingController();
 
+  void _showFilters() {
+    showModalBottomSheet(
+      context: context,
+      builder:
+          (context) => ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
+            child: Container(height: 500, child: const Filter()),
+          ),
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
+      ),
+    );
+  }
+
   void _shearch() {}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,6 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
+              width: double.infinity,
+            ),
             Search(
               controller: _searchValue,
               label: 'Lugar',
@@ -27,32 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icon(Icons.search),
               ),
               suffixIcon: IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder:
-                        (context) => ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(50),
-                          ),
-                          child: Container(height: 500, child: const Filter()),
-                        ),
-                    isScrollControlled: true,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(50),
-                      ),
-                    ),
-                  );
-                },
+                onPressed: () => _showFilters(),
                 icon: Icon(Icons.tune),
               ),
-              padding: EdgeInsets.all(50),
+              padding: EdgeInsets.all(20),
             ),
+            Places(),
           ],
         ),
       ),
-      bottomNavigationBar: FooterBar(),
     );
   }
 }

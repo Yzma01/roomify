@@ -1,6 +1,8 @@
 // lib/services/auth_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:roomify/components/hooks/UserProvider.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -80,7 +82,16 @@ class AuthService {
 
   // Método para cerrar sesión
   Future<void> signOut() async {
-    await _auth.signOut();
+    try {
+      await _auth.signOut();
+      if (_auth.currentUser != null){
+        throw Exception('No se pudó cerrar sesión');
+      }
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    }catch (e){
+      throw Exception('Error: ${e.toString()}');
+    }
   }
 
   // Método para recuperación de contraseña

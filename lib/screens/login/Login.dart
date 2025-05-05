@@ -1,6 +1,8 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:roomify/components/actions/Button.dart';
+import 'package:roomify/components/hooks/UserProvider.dart';
 import 'package:roomify/components/inputs/Input.dart';
 import 'package:roomify/services/auth_service.dart';
 
@@ -27,9 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      await Provider.of<UserProvider>(context, listen: false).loadUser();
 
       // Navegar a la pantalla principal
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),

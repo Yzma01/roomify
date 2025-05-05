@@ -50,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (user != null) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
       print(e);
