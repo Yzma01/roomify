@@ -32,29 +32,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.05,
-              width: double.infinity,
-            ),
-            Search(
-              controller: _searchValue,
-              label: 'Lugar',
-              prefixIcon: IconButton(
-                onPressed: () => _shearch,
-                icon: Icon(Icons.search),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Search(
+                controller: _searchValue,
+                label: 'Lugar',
+                prefixIcon: IconButton(
+                  onPressed: () => _shearch,
+                  icon: Icon(Icons.search),
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () => _showFilters(),
+                  icon: Icon(Icons.tune),
+                ),
+                padding: EdgeInsets.all(20),
               ),
-              suffixIcon: IconButton(
-                onPressed: () => _showFilters(),
-                icon: Icon(Icons.tune),
-              ),
-              padding: EdgeInsets.all(20),
-            ),
-            Places(),
-          ],
+              Places(),
+            ],
+          ),
         ),
       ),
     );

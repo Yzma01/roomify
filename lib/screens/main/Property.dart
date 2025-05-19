@@ -5,30 +5,13 @@ class PropertyScreen extends StatelessWidget {
 
   const PropertyScreen({Key? key, required this.id}) : super(key: key);
 
-  Widget _topBar(context) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back),
-        ),
-        const Spacer(),
-        Text(style: TextStyle(fontSize: 20), 'Propiedad'),
-        const Spacer(),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text('Propiedad'),),
       body: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.05,
-            width: double.infinity,
-          ),
-          _topBar(context),
+          Text(id)
         ],
       ),
     );

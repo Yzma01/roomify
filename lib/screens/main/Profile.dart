@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roomify/components/hooks/UserProvider.dart';
+import 'package:roomify/components/profile/ProfileCard.dart';
 import 'package:roomify/screens/login/Login.dart';
 import 'package:roomify/services/auth_service.dart';
 
@@ -15,22 +16,13 @@ class ProfileScreen extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      // Mostrar loading
       scaffold.showSnackBar(SnackBar(content: Text('Cerrando sesión...')));
-
-      // 1. Cerrar sesión en Firebase
       await authService.signOut();
-
-      // 2. Limpiar el estado local
       userProvider.clearUser();
-
-      // 3. Navegar a Login y limpiar stack
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => LoginScreen()),
         (route) => false,
       );
-
-      // 4. Mostrar confirmación
       scaffold.showSnackBar(
         SnackBar(content: Text('Sesión cerrada exitosamente')),
       );
@@ -41,19 +33,80 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  handleProfileEdit() {}
+
+  void optionNotAvailable({required BuildContext context}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Opción no disponible'),
+          content: const Text('Esta opción no está disponible por el momento.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final user = Provider.of<UserProvider>(context).userData;
+    return SafeArea(
       child: SizedBox(
         height: MediaQuery.of(context).size.height,
+        width: double.infinity,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Profile'),
-              IconButton(
-                onPressed: () => logOut(context),
-                icon: Icon(Icons.logout),
+              SizedBox(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.05,
+              ),
+              Icon(Icons.account_circle, size: 200),
+              SizedBox(width: double.infinity, height: 10),
+              Text(user?['name'], style: TextStyle(fontSize: 40)),
+              Padding(
+                padding: const EdgeInsets.all(22.0),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(50)),
+                    color: Colors.blue[100],
+                  ),
+                  child: Text(user?['email'], style: TextStyle(fontSize: 15)),
+                ),
+              ),
+              SizedBox(height: 40,),
+              ProfileCard(
+                text: 'Editar Perfil',
+                icon: Icons.edit_outlined,
+                haveArrow: true,
+                onTap: () => Navigator.pushNamed(context, '/edit-profile'),
+              ),
+              ProfileCard(
+                text: 'Editar Alquileres',
+                icon: Icons.home_work_outlined,
+                haveArrow: true,
+                onTap: () => optionNotAvailable(context: context),
+              ),
+              ProfileCard(
+                text: 'Configuraciones',
+                icon: Icons.settings,
+                haveArrow: true,
+                onTap: () => optionNotAvailable(context: context),
+              ),
+              ProfileCard(
+                text: 'Cerrar Sesión',
+                icon: Icons.logout_sharp,
+                onTap: () => logOut(context),
+                haveArrow: false,
+                iconColor: Colors.red,
               ),
             ],
           ),
