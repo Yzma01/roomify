@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class ComboBox extends StatefulWidget {
   final String? label;
@@ -35,18 +36,17 @@ class _ComboBoxState extends State<ComboBox> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white, // Requiere fondo para ver la sombra
+        color: Colors.white,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 6,
-            offset: const Offset(0, 3), // sombra hacia abajo
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: DropdownButtonFormField<String>(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: DropdownButtonFormField2<String>(
         decoration: InputDecoration(
           labelText: widget.label ?? 'Seleccionar',
           border: OutlineInputBorder(
@@ -61,17 +61,15 @@ class _ComboBoxState extends State<ComboBox> {
           ),
           prefixIcon: widget.icon != null ? Icon(widget.icon) : null,
         ),
-        value: _role,
-        items: widget.items
-            .map(
-              (option) => DropdownMenuItem<String>(
-                value: option,
-                child: Text(option),
-              ),
-            )
-            .toList(),
-        dropdownColor: Colors.white,
         isExpanded: true,
+        value: _role,
+        items:
+            widget.items
+                .map(
+                  (item) =>
+                      DropdownMenuItem<String>(value: item, child: Text(item)),
+                )
+                .toList(),
         onChanged: (value) {
           setState(() {
             _role = value;
@@ -80,7 +78,8 @@ class _ComboBoxState extends State<ComboBox> {
             widget.onChanged!(value);
           }
         },
-        validator: widget.validator ??
+        validator:
+            widget.validator ??
             (value) => value == null ? 'Por favor selecciona una opción' : null,
       ),
     );

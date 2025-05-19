@@ -12,4 +12,6 @@ class Property {
     required this.location,
     required this.name,
   });
+
+  bool get isEmpty => images.isEmpty;
 }

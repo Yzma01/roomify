@@ -8,7 +8,7 @@ class Places extends StatelessWidget {
   const Places({Key? key}) : super(key: key);
 
   // aquí debo de sacar las imágenes por cada lugar que haya, que pereza :'(
-  List<Image> getImages(id) {
+  static List<Image> getImages(id) {
     final List<Image> images = [];
     List<String> collection = [
       'assets/images/casa1.jpg',
@@ -21,7 +21,7 @@ class Places extends StatelessWidget {
     return images;
   }
 
-  List<Property> getPlaces() {
+  static List<Property> getPlaces() {
     List<Property> collection = [];
     for (var i = 0; i < 10; i++) {
       collection.add(
