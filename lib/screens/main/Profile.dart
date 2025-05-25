@@ -89,12 +89,13 @@ class ProfileScreen extends StatelessWidget {
                 haveArrow: true,
                 onTap: () => Navigator.pushNamed(context, '/edit-profile'),
               ),
-              ProfileCard(
-                text: 'Editar Alquileres',
-                icon: Icons.home_work_outlined,
-                haveArrow: true,
-                onTap: () => optionNotAvailable(context: context),
-              ),
+              if(user?['role']=='Arrendatario')
+                ProfileCard(
+                  text: 'Editar Alquileres',
+                  icon: Icons.home_work_outlined,
+                  haveArrow: true,
+                  onTap: () => optionNotAvailable(context: context),
+                ),
               ProfileCard(
                 text: 'Configuraciones',
                 icon: Icons.settings,

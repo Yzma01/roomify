@@ -6,6 +6,7 @@ class ComboBox extends StatefulWidget {
   final List<String> items;
   final String? initialValue;
   final IconData? icon;
+  final Color? iconColor;
   final Function(String?)? onChanged;
   final String? Function(String?)? validator;
 
@@ -15,6 +16,7 @@ class ComboBox extends StatefulWidget {
     this.label,
     this.initialValue,
     this.icon,
+    this.iconColor,
     this.onChanged,
     this.validator,
   }) : super(key: key);
@@ -59,7 +61,7 @@ class _ComboBoxState extends State<ComboBox> {
             horizontal: 12,
             vertical: 16,
           ),
-          prefixIcon: widget.icon != null ? Icon(widget.icon) : null,
+          prefixIcon: widget.icon != null ? Icon(widget.icon, color: widget.iconColor ?? widget.iconColor,) : null,
         ),
         isExpanded: true,
         value: _role,

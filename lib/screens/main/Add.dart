@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:roomify/components/actions/Button.dart';
 import 'package:roomify/components/inputs/ComboBox.dart';
+import 'package:roomify/components/inputs/ImagePicker.dart';
 import 'package:roomify/components/inputs/Input.dart';
 import 'package:roomify/components/inputs/MultiComboBox.dart';
 
@@ -27,6 +29,8 @@ class _AddScreenState extends State<AddScreen> {
 
   late Future<List<String>> petsAllowed;
   List<String> _clientPets = [];
+
+  List<XFile> images = [];
 
   bool _pets = false;
   bool _deposit = false;
@@ -150,6 +154,8 @@ class _AddScreenState extends State<AddScreen> {
         ComboBox(
           items: ['Departamento', 'Casa'],
           label: 'Tipo de edificio',
+          icon: Icons.house,
+          iconColor: Colors.blueAccent,
           onChanged:
               (value) => setState(() {
                 _deparmentType = value;
@@ -162,6 +168,8 @@ class _AddScreenState extends State<AddScreen> {
         ComboBox(
           items: ['1', '2', '3', '4', '5'],
           label: 'Cantidad de habitaciones',
+          icon: Icons.hotel,
+          iconColor: Colors.blueAccent,
           validator:
               (value) =>
                   value!.isEmpty
@@ -172,13 +180,22 @@ class _AddScreenState extends State<AddScreen> {
         ComboBox(
           items: ['1', '2', '3', '4', '5'],
           label: 'Cantidad de Baños',
+          icon: Icons.bathtub,
+          iconColor: Colors.blueAccent,
           validator:
               (value) =>
                   value!.isEmpty ? 'Seleccione la cantidad de baños' : null,
         ),
 
         // TODO IMAGES
-        Text('Imagenes'),
+        ImagesPicker(
+          iconColor: Colors.blueAccent,
+          onImagesSelected: (imagesSelected) {
+            setState(() {
+              images = imagesSelected;
+            });
+          },
+        ),
         // TODO DIRECTION
         Text('Dirección'),
         //Size of the space
@@ -387,7 +404,7 @@ class _AddScreenState extends State<AddScreen> {
                 //Services Proovide
                 servicesProvide(),
 
-                SizedBox(height: 20, width: double.infinity,),
+                SizedBox(height: 20, width: double.infinity),
 
                 Button(
                   isLoading: _isLoading,
