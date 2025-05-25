@@ -49,6 +49,7 @@ class _ComboBoxState extends State<ComboBox> {
         ],
       ),
       child: DropdownButtonFormField2<String>(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           labelText: widget.label ?? 'Seleccionar',
           border: OutlineInputBorder(

@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:roomify/components/actions/Button.dart';
+import 'package:roomify/components/inputs/CheckBox.dart';
 import 'package:roomify/components/inputs/ComboBox.dart';
 import 'package:roomify/components/inputs/ImagePicker.dart';
 import 'package:roomify/components/inputs/Input.dart';
+import 'package:roomify/components/inputs/MapInput.dart';
 import 'package:roomify/components/inputs/MultiComboBox.dart';
 
 class AddScreen extends StatefulWidget {
@@ -13,61 +16,63 @@ class AddScreen extends StatefulWidget {
 }
 
 class _AddScreenState extends State<AddScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Controllers para inputs de texto
   final _monthlyPaymentController = TextEditingController();
   final _sizeController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _depositController = TextEditingController();
 
-  String? _deparmentType;
-  String? _monthlyPaymentType = '';
+  // Variables para guardar datos
+  String? _departmentType;
+  String? _monthlyPaymentType;
   String? _petsAmount;
+  LatLng? _location;
 
-  late Future<List<String>> services;
-  List<String> _clientServices = [];
+  List<String> _servicesSelected = [];
+  List<String> _petsAllowedSelected = [];
+  String? _minMonthDuration;
 
-  List<String> minMonthDuration = [];
-
-  late Future<List<String>> petsAllowed;
-  List<String> _clientPets = [];
-
-  List<XFile> images = [];
+  List<XFile> _images = [];
 
   bool _pets = false;
   bool _deposit = false;
   bool _party = false;
   bool _smoking = false;
   bool _disablePeople = false;
-  bool _isLoading = false;
 
-  List<String> amount = ['1', '2', '3', '4', '5'];
-  String? _minMonthDuration = '';
+  // Opcionales - si quieres puedes guardar aquí el valor de habitaciones y baños (si usas ComboBox para eso)
+  String? _bedroomsAmount;
+  String? _bathroomsAmount;
+
+  List<String> _amountOptions = ['1', '2', '3', '4', '5'];
+  List<String> _minMonthDurationOptions = [];
+
+  late Future<List<String>> _servicesFuture;
+  late Future<List<String>> _petsFuture;
+
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    services = getServices();
-    petsAllowed = getPets();
-    minMonthDuration = getMinMonthDuration();
+    _servicesFuture = getServices();
+    _petsFuture = getPets();
+    _minMonthDurationOptions = _generateMinMonthDuration();
   }
 
-  Future<void> saveProperty() async {}
-
-  List<String> getMinMonthDuration() {
+  List<String> _generateMinMonthDuration() {
     List<String> items = [];
-
     for (var i = 0; i < 12; i++) {
-      if (i == 0) {
-        items.add('1 Mes');
-      } else {
-        items.add('${i + 1} Meses');
-      }
+      items.add('${i + 1} Mes${i == 0 ? '' : 'es'}');
     }
     items.add('No es necesario');
     return items;
   }
 
   Future<List<String>> getServices() async {
-    List<String> _services = [
+    return [
       'Agua',
       'Luz',
       'Parqueo',
@@ -75,17 +80,64 @@ class _AddScreenState extends State<AddScreen> {
       'Cable',
       'Internet',
     ];
-    return _services;
   }
 
   Future<List<String>> getPets() async {
-    List<String> _services = [
+    return [
       'Gato',
       'Hamster',
       'Perro Grande',
       'Perro Pequeño',
     ];
-    return _services;
+  }
+
+  Future<void> saveProperty() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Aquí el código para guardar los datos, por ejemplo en Firebase
+        // Datos que usarás:
+        print('Tipo de departamento: $_departmentType');
+        print('Habitaciones: $_bedroomsAmount');
+        print('Baños: $_bathroomsAmount');
+        print('Imágenes seleccionadas: ${_images.length}');
+        print('Ubicación: ${_location?.latitude}, ${_location?.longitude}');
+        print('Tamaño: ${_sizeController.text}');
+        print('Descripción: ${_descriptionController.text}');
+        print('Depósito: $_deposit');
+        if (_deposit) print('Monto depósito: ${_depositController.text}');
+        print('Pago mensual: ${_monthlyPaymentController.text}');
+        print('Tipo pago mensual: $_monthlyPaymentType');
+        print('Mascotas permitidas: $_pets');
+        if (_pets) {
+          print('Tipos mascotas: $_petsAllowedSelected');
+          print('Cantidad mascotas: $_petsAmount');
+        }
+        print('Fiestas permitidas: $_party');
+        print('Fumar permitido: $_smoking');
+        print('Personas discapacitadas: $_disablePeople');
+        print('Servicios: $_servicesSelected');
+        print('Duración mínima alquiler: $_minMonthDuration');
+
+        // Simula guardado:
+        await Future.delayed(Duration(seconds: 2));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Propiedad guardada correctamente')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar la propiedad: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Widget futureMenu({
@@ -101,46 +153,31 @@ class _AddScreenState extends State<AddScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error al cargar ${title}'));
+          return Center(child: Text('Error al cargar $title'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No hay ${title} disponibles'));
+          return Center(child: Text('No hay $title disponibles'));
         }
-        return SingleChildScrollView(
-          child: MultiComboBox(
-            onConfirm: onConfirm,
-            icon: Icons.arrow_drop_down,
-            title: title,
-            label: label,
-            initialValues: itemsSelected,
-            items: snapshot.data!,
-          ),
+        return MultiComboBox(
+          onConfirm: onConfirm,
+          icon: Icons.arrow_drop_down,
+          title: title,
+          label: label,
+          initialValues: itemsSelected,
+          items: snapshot.data!,
         );
       },
     );
   }
 
-  Widget checkBox({
-    required String text,
-    required onChanged,
-    required bool value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-      child: Row(
-        children: [
-          Text(text, style: TextStyle(fontWeight: FontWeight.w500)),
-          Checkbox(value: value, onChanged: onChanged),
-        ],
-      ),
-    );
-  }
-
   Widget section({required String text}) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }
@@ -150,73 +187,83 @@ class _AddScreenState extends State<AddScreen> {
       spacing: 10,
       children: [
         section(text: 'Información Básica'),
-        //House or department
         ComboBox(
           items: ['Departamento', 'Casa'],
           label: 'Tipo de edificio',
           icon: Icons.house,
           iconColor: Colors.blueAccent,
-          onChanged:
-              (value) => setState(() {
-                _deparmentType = value;
-              }),
-          validator:
-              (value) =>
-                  value!.isEmpty ? 'Seleccione un tipo de edificio' : null,
+          onChanged: (value) {
+            setState(() {
+              _departmentType = value;
+            });
+          },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Seleccione un tipo de edificio' : null,
         ),
-        //Bedrooms
         ComboBox(
-          items: ['1', '2', '3', '4', '5'],
+          items: _amountOptions,
           label: 'Cantidad de habitaciones',
           icon: Icons.hotel,
           iconColor: Colors.blueAccent,
-          validator:
-              (value) =>
-                  value!.isEmpty
-                      ? 'Seleccione la cantidad de habitaciones'
-                      : null,
-        ),
-        //Bathrooms
-        ComboBox(
-          items: ['1', '2', '3', '4', '5'],
-          label: 'Cantidad de Baños',
-          icon: Icons.bathtub,
-          iconColor: Colors.blueAccent,
-          validator:
-              (value) =>
-                  value!.isEmpty ? 'Seleccione la cantidad de baños' : null,
-        ),
-
-        // TODO IMAGES
-        ImagesPicker(
-          iconColor: Colors.blueAccent,
-          onImagesSelected: (imagesSelected) {
+          onChanged: (value) {
             setState(() {
-              images = imagesSelected;
+              _bedroomsAmount = value;
             });
           },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Seleccione cantidad de habitaciones' : null,
         ),
-        // TODO DIRECTION
-        Text('Dirección'),
-        //Size of the space
+        ComboBox(
+          items: _amountOptions,
+          label: 'Cantidad de baños',
+          icon: Icons.bathtub,
+          iconColor: Colors.blueAccent,
+          onChanged: (value) {
+            setState(() {
+              _bathroomsAmount = value;
+            });
+          },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Seleccione cantidad de baños' : null,
+        ),
+        ImagesPicker(
+          iconColor: Colors.blueAccent,
+          onSaved: (imagesSelected) {
+            setState(() {
+              _images = imagesSelected ?? [];
+            });
+          },
+          validator: (imagesSelected) {
+            if (imagesSelected == null || imagesSelected.isEmpty) {
+              return 'Debes seleccionar al menos una imagen';
+            }
+            return null;
+          },
+        ),
+        MapInput(
+          label: 'Ubicación',
+          onChanged: (locationSelected) {
+            setState(() {
+              _location = locationSelected;
+            });
+          },
+          validator: (val) =>
+              (val == null || val.isEmpty) ? 'Por favor seleccione una ubicación' : null,
+          iconColor: Colors.blueAccent,
+          userCurrentLocation: true,
+        ),
         Input(
           keyboardType: TextInputType.number,
           controller: _sizeController,
           label: 'Tamaño en m²',
-          validator:
-              (value) =>
-                  value!.isEmpty
-                      ? 'Ingrese en tamaño en m² de la vivienda'
-                      : null,
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Ingrese el tamaño en m² de la vivienda' : null,
         ),
-
-        //Description
         Input(
           controller: _descriptionController,
           label: 'Descripción',
-          validator:
-              (value) =>
-                  value!.isEmpty ? 'Ingrese el monto del alquiler' : null,
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Ingrese la descripción' : null,
         ),
       ],
     );
@@ -227,53 +274,71 @@ class _AddScreenState extends State<AddScreen> {
       spacing: 10,
       children: [
         section(text: 'Permisos'),
-        //Pets
-        checkBox(
+        CustomCheckbox(
           text: 'Mascotas',
-
-          onChanged:
-              (value) => setState(() {
-                _pets = value;
-              }),
           value: _pets,
+          onChanged: (bool? newValue) {
+            setState(() {
+              _pets = newValue ?? false;
+              if (!_pets) {
+                _petsAllowedSelected.clear();
+                _petsAmount = null;
+              }
+            });
+          },
         ),
         if (_pets)
           futureMenu(
-            items: petsAllowed,
-            itemsSelected: _clientPets,
+            items: _petsFuture,
+            itemsSelected: _petsAllowedSelected,
             title: 'Mascotas',
-            label: 'Seleccione las mascotas',
-            onConfirm:
-                (values) => setState(() {
-                  _clientPets = values;
-                }),
+            label: 'Tipos de mascotas permitidas',
+            onConfirm: (selected) {
+              setState(() {
+                _petsAllowedSelected = selected;
+              });
+            },
           ),
         if (_pets)
           ComboBox(
-            items: amount,
-            label: 'Cantidad de Mascotas',
-            onChanged:
-                (value) => setState(() {
-                  _petsAmount = value;
-                }),
+            items: _amountOptions,
+            label: 'Cantidad de mascotas',
+            icon: Icons.pets,
+            iconColor: Colors.blueAccent,
+            onChanged: (value) {
+              setState(() {
+                _petsAmount = value;
+              });
+            },
+            validator: (value) =>
+                (value == null || value.isEmpty) ? 'Seleccione cantidad de mascotas' : null,
           ),
-        //Party
-        checkBox(
+        CustomCheckbox(
           text: 'Fiestas',
-          onChanged:
-              (value) => setState(() {
-                _party = value;
-              }),
           value: _party,
+          onChanged: (bool? newValue) {
+            setState(() {
+              _party = newValue ?? false;
+            });
+          },
         ),
-        //Smoke
-        checkBox(
+        CustomCheckbox(
           text: 'Fumar',
-          onChanged:
-              (value) => setState(() {
-                _smoking = value;
-              }),
           value: _smoking,
+          onChanged: (bool? newValue) {
+            setState(() {
+              _smoking = newValue ?? false;
+            });
+          },
+        ),
+        CustomCheckbox(
+          text: 'Personas con discapacidad',
+          value: _disablePeople,
+          onChanged: (bool? newValue) {
+            setState(() {
+              _disablePeople = newValue ?? false;
+            });
+          },
         ),
       ],
     );
@@ -283,17 +348,17 @@ class _AddScreenState extends State<AddScreen> {
     return Column(
       spacing: 10,
       children: [
-        section(text: 'Servicios'),
-        //Services
+        section(text: 'Servicios que ofrece'),
         futureMenu(
-          items: services,
-          itemsSelected: _clientServices,
+          items: _servicesFuture,
+          itemsSelected: _servicesSelected,
           title: 'Servicios',
-          label: 'Seleccione los Servicios',
-          onConfirm:
-              (values) => setState(() {
-                _clientServices = values;
-              }),
+          label: 'Seleccione servicios que ofrece',
+          onConfirm: (selected) {
+            setState(() {
+              _servicesSelected = selected;
+            });
+          },
         ),
       ],
     );
@@ -303,43 +368,50 @@ class _AddScreenState extends State<AddScreen> {
     return Column(
       spacing: 10,
       children: [
-        section(text: 'Condiciones Financieras'),
-        //Deposit Required
-        checkBox(
-          text: 'Deposito de Garantía',
-          onChanged:
-              (value) => setState(() {
-                _deposit = value;
-              }),
+        section(text: 'Condiciones financieras'),
+        CustomCheckbox(
+          text: 'Depósito',
           value: _deposit,
+          onChanged: (bool? newValue) {
+            setState(() {
+              _deposit = newValue ?? false;
+              if (!_deposit) {
+                _depositController.clear();
+              }
+            });
+          },
         ),
         if (_deposit)
           Input(
             keyboardType: TextInputType.number,
             controller: _depositController,
-            label: 'Mónto del Depósito',
-            validator:
-                (value) =>
-                    value!.isEmpty ? 'Ingrese el monto del depósito' : null,
+            label: 'Monto de depósito',
+            validator: (value) {
+              if (_deposit && (value == null || value.isEmpty)) {
+                return 'Ingrese el monto de depósito';
+              }
+              return null;
+            },
           ),
-        //Monthly Payment Type
-        ComboBox(
-          items: ['Mensual', 'Quincenal', 'Semanal'],
-          label: 'Frecuencia de pago',
-          onChanged:
-              (value) => setState(() {
-                _monthlyPaymentType = value;
-              }),
-        ),
-
-        //Monthly payment
         Input(
-          controller: _monthlyPaymentController,
-          label: 'Monto',
           keyboardType: TextInputType.number,
-          validator:
-              (value) =>
-                  value!.isEmpty ? 'Ingrese el monto del alquiler' : null,
+          controller: _monthlyPaymentController,
+          label: 'Pago mensual',
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Ingrese el pago mensual' : null,
+        ),
+        ComboBox(
+          items: ['Al mes', 'Al día', 'Al año'],
+          label: 'Tipo de pago mensual',
+          icon: Icons.payment,
+          iconColor: Colors.blueAccent,
+          onChanged: (value) {
+            setState(() {
+              _monthlyPaymentType = value;
+            });
+          },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Seleccione tipo de pago mensual' : null,
         ),
       ],
     );
@@ -349,24 +421,19 @@ class _AddScreenState extends State<AddScreen> {
     return Column(
       spacing: 10,
       children: [
-        section(text: 'Condiciones de Alquiler'),
-        //Min Duration
+        section(text: 'Condiciones de alquiler'),
         ComboBox(
-          items: minMonthDuration,
-          label: 'Duración Minima de Alquiler',
-          onChanged:
-              (value) => setState(() {
-                _minMonthDuration = value;
-              }),
-        ),
-        //Disable Persons
-        checkBox(
-          text: 'Personas Discapacitadas',
-          onChanged:
-              (value) => setState(() {
-                _disablePeople = value;
-              }),
-          value: _disablePeople,
+          items: _minMonthDurationOptions,
+          label: 'Duración mínima de alquiler',
+          icon: Icons.calendar_today,
+          iconColor: Colors.blueAccent,
+          onChanged: (value) {
+            setState(() {
+              _minMonthDuration = value;
+            });
+          },
+          validator: (value) =>
+              (value == null || value.isEmpty) ? 'Seleccione duración mínima' : null,
         ),
       ],
     );
@@ -374,45 +441,34 @@ class _AddScreenState extends State<AddScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 10,
-              children: [
-                //Title
-                Text(
-                  'Registro de Vivienda',
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.w500),
-                ),
-
-                //Basic Information
-                basicInformation(),
-
-                //Financial Conditions
-                financialConditions(),
-
-                //Rental Contitions
-                rentalConditions(),
-
-                //Allow
-                permitsAllow(),
-
-                //Services Proovide
-                servicesProvide(),
-
-                SizedBox(height: 20, width: double.infinity),
-
-                Button(
-                  isLoading: _isLoading,
-                  onPressed: saveProperty,
-                  label: 'Guardar',
-                ),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Agregar Propiedad'),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 10,
+            children: [
+              basicInformation(),
+              
+              permitsAllow(),
+              
+              servicesProvide(),
+              
+              financialConditions(),
+              
+              rentalConditions(),
+              SizedBox(height: 24),
+              _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : Button(
+                    isLoading: _isLoading,   
+                    label: 'Guardar',                 onPressed: saveProperty
+                    ),
+            ],
           ),
         ),
       ),
