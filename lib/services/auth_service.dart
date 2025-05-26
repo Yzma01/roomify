@@ -8,27 +8,24 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Método mejorado para iniciar sesión
   Future<User?> loginUser({
     required String email,
     required String password,
   }) async {
     try {
-      // Usamos una variable temporal para evitar problemas de casteo
       final authResult = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
-      
-      // Forzamos un reload para asegurar los datos del usuario
+
       await authResult.user?.reload();
       final user = _auth.currentUser;
-      
+
       if (user != null && !user.emailVerified) {
         await _auth.signOut();
         throw Exception('Por favor verifica tu email antes de iniciar sesión');
       }
-      
+
       return user;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
@@ -37,7 +34,6 @@ class AuthService {
     }
   }
 
-  // Método mejorado para registrar usuario
   Future<User?> registerUser({
     required String fullName,
     required String email,
@@ -46,30 +42,26 @@ class AuthService {
     required String role,
   }) async {
     try {
-      // 1. Crear usuario en Firebase Auth
       final authResult = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
 
-      // 2. Esperar a que el usuario esté completamente inicializado
       await authResult.user?.reload();
       final user = _auth.currentUser;
 
       if (user != null) {
-        // 3. Guardar información adicional en Firestore
         await _firestore.collection('users').doc(user.uid).set({
           'email': email.trim(),
           'name': fullName.trim(),
           'phone': phone.trim(),
           'role': role.trim(),
-          'createdAt': FieldValue.serverTimestamp(), // Mejor usar serverTimestamp
-          'uid': user.uid, // Añadir UID explícitamente
+          'createdAt': FieldValue.serverTimestamp(),
+          'uid': user.uid,
         });
 
-        // 4. Enviar email de verificación (sin esperar)
         user.sendEmailVerification();
-        
+
         return user;
       }
       return null;
@@ -80,21 +72,19 @@ class AuthService {
     }
   }
 
-  // Método para cerrar sesión
   Future<void> signOut() async {
     try {
       await _auth.signOut();
-      if (_auth.currentUser != null){
+      if (_auth.currentUser != null) {
         throw Exception('No se pudó cerrar sesión');
       }
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
-    }catch (e){
+    } catch (e) {
       throw Exception('Error: ${e.toString()}');
     }
   }
 
-  // Método para recuperación de contraseña
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -103,7 +93,6 @@ class AuthService {
     }
   }
 
-  // Manejo mejorado de errores
   String _handleAuthError(FirebaseAuthException e) {
     switch (e.code) {
       case 'email-already-in-use':

@@ -14,14 +14,14 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _nameController = TextEditingController();
   final _userEmailController = TextEditingController();
-  final _userPasswordController = TextEditingController();
   final _userFullNameController = TextEditingController();
   final _userPhoneController = TextEditingController();
 
   String? _role;
   bool _isLoading = false;
+
+  final _formKey = GlobalKey<FormState>();
 
   String? validateEmail(String? value) {
     if (value!.isEmpty) return 'Ingrese su email';
@@ -79,6 +79,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _role = user?['role'];
   }
 
+  Future<void> saveData() async {
+    if (_formKey.currentState!.validate()) {
+      await updateUser(
+        fullname: _userFullNameController.text,
+        context: context,
+        email: _userEmailController.text,
+        phone: _userPhoneController.text,
+        role: _role!,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,67 +99,63 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Center(
-            child: Column(
-              children: [
-                //Name
-                Input(
-                  controller: _userFullNameController,
-                  prefixIcon: Icon(Icons.person),
-                  label: 'Nombre Completo',
-                  validator:
-                      (value) => value!.isEmpty ? 'Ingrese su nombre' : null,
-                ),
-                //Email
-                Input(
-                  controller: _userEmailController,
-                  prefixIcon: Icon(Icons.email),
-                  label: 'Correo Electrónico',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    return validateEmail(value);
-                  },
-                ),
-                //Phone
-                Input(
-                  controller: _userPhoneController,
-                  prefixIcon: Icon(Icons.phone),
-                  label: 'Teléfono',
-                  keyboardType: TextInputType.phone,
-                  validator:
-                      (value) => value!.isEmpty ? 'Ingrese su teléfono' : null,
-                ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  //Name
+                  Input(
+                    controller: _userFullNameController,
+                    prefixIcon: Icon(Icons.person),
+                    label: 'Nombre Completo',
+                    validator:
+                        (value) => value!.isEmpty ? 'Ingrese su nombre' : null,
+                  ),
+                  //Email
+                  Input(
+                    controller: _userEmailController,
+                    prefixIcon: Icon(Icons.email),
+                    label: 'Correo Electrónico',
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      return validateEmail(value);
+                    },
+                  ),
+                  //Phone
+                  Input(
+                    controller: _userPhoneController,
+                    prefixIcon: Icon(Icons.phone),
+                    label: 'Teléfono',
+                    keyboardType: TextInputType.phone,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Ingrese su teléfono' : null,
+                  ),
 
-                //Password
-                ComboBox(
-                  items: ['Estudiante', 'Arrendatario'],
-                  icon: Icons.list,
-                  label: 'Role',
-                  initialValue: _role,
-                  onChanged: (value) {
-                    _role = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Seleccione un role';
-                    }
-                  },
-                ),
-                const SizedBox(height: 40),
-                Button(
-                  isLoading: _isLoading,
-                  onPressed: () async {
-                    await updateUser(
-                      fullname: _userFullNameController.text,
-                      context: context,
-                      email: _userEmailController.text,
-                      phone: _userPhoneController.text,
-                      role: _role!,
-                    );
-                  },
-                  label: 'Guardar',
-                  fontSize: 20,
-                ),
-              ],
+                  //Password
+                  ComboBox(
+                    items: ['Estudiante', 'Arrendatario'],
+                    icon: Icons.list,
+                    label: 'Role',
+                    initialValue: _role,
+                    onChanged: (value) {
+                      _role = value;
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Seleccione un role';
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 40),
+                  Button(
+                    isLoading: _isLoading,
+                    onPressed: saveData,
+                    label: 'Guardar',
+                    fontSize: 20,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

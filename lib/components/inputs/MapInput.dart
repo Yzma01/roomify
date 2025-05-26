@@ -45,8 +45,8 @@ class _MapInputState extends State<MapInput> {
         builder: (_) => MapPicker(initialLocation: _selectedLocation),
       ),
     );
-
-    if (picked != null) {
+    print('ubicación: Lat: ${picked!.latitude.toStringAsFixed(6)}, Lng: ${picked!.longitude.toStringAsFixed(6)}');
+    if (picked != null &&  (_selectedLocation == null || picked != _selectedLocation)) {
       setState(() {
         _selectedLocation = picked;
         _controller.text =
