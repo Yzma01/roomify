@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:roomify/components/inputs/Input.dart';
 import 'package:roomify/services/auth_service.dart';
 
-
 class ForgotPasswordScreen extends StatefulWidget {
   @override
   _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
@@ -20,14 +19,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-
     try {
       await _authService.sendPasswordResetEmail(_emailController.text);
       setState(() => _emailSent = true);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -87,9 +85,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _sendResetEmail,
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Text('Enviar Enlace'),
+                        child:
+                            _isLoading
+                                ? const CircularProgressIndicator()
+                                : const Text('Enviar Enlace'),
                       ),
                     ),
                 ],

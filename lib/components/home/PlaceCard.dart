@@ -53,7 +53,7 @@ class PlaceCard extends StatelessWidget {
                     height: 200,
                     child: PageView.builder(
                       itemCount: images.length,
-                      controller: PageController(viewportFraction: 0.9),
+                      controller: PageController(viewportFraction: 0.8),
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),

@@ -76,7 +76,7 @@ Future<Property?> getProperty(String uid) async {
   }
 }
 
-Future<List<Property>>? getProperties() async {
+Future<List<Property>> getProperties() async {
   final querySnapshot = await firestore.collection('properties').get();
   List<Property> properties = [];
 

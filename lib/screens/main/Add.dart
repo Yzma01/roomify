@@ -250,7 +250,7 @@ class _AddScreenState extends State<AddScreen> {
         ),
         if (_pets)
           FutureMenu(
-            items: getPets(),
+            items: _petsFuture,
             itemsSelected: _petsAllowedSelected,
             title: 'Mascotas',
             label: 'Tipos de mascotas permitidas',
@@ -314,7 +314,7 @@ class _AddScreenState extends State<AddScreen> {
       children: [
         Section(text: 'Servicios que ofrece'),
         FutureMenu(
-          items: getServices(),
+          items: _servicesFuture,
           itemsSelected: _servicesSelected,
           title: 'Servicios',
           label: 'Seleccione servicios que ofrece',
@@ -334,7 +334,7 @@ class _AddScreenState extends State<AddScreen> {
       children: [
         Section(text: 'Condiciones financieras'),
         CustomCheckbox(
-          text: 'Depósito',
+          text: 'Depósito de Garantía',
           value: _deposit,
           onChanged: (bool? newValue) {
             setState(() {

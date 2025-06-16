@@ -30,11 +30,12 @@ class Search extends StatelessWidget {
         centerLabel: true,
         padding: padding,
         decoration: decoration,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Por favor ingrese un lugar';
-          }
-        },
+        validator: (value) {},
+        // validator: (value) {
+        //   if (value == null || value.isEmpty) {
+        //     return 'Por favor ingrese un lugar';
+        //   }
+        // },
       ),
     );
   }

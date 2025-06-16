@@ -51,7 +51,7 @@ class _MainContainerState extends State<MainContainer> {
         child: Row(
           children: [
             _buildNavIcon(Icons.home, 0),
-            _buildNavIcon(Icons.map, 1),
+            //_buildNavIcon(Icons.map, 1),
             if (role == 'Arrendatario') _buildNavIcon(Icons.add, 2),
             _buildNavIcon(Icons.person, 3),
           ],

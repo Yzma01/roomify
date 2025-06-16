@@ -7,6 +7,7 @@ import 'package:roomify/components/actions/Button.dart';
 import 'package:roomify/components/hooks/UserProvider.dart';
 import 'package:roomify/components/inputs/ComboBox.dart';
 import 'package:roomify/components/inputs/Input.dart';
+import 'package:roomify/services/auth_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -22,6 +23,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
+
+  final AuthService _authService = AuthService();
 
   String? validateEmail(String? value) {
     if (value!.isEmpty) return 'Ingrese su email';
@@ -55,6 +58,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         {'name': fullname, 'email': email, 'phone': phone, 'role': role},
       );
       await Provider.of<UserProvider>(context, listen: false).loadUser();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Perfil actualizado correctamente')),
       );
@@ -115,7 +119,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   Input(
                     controller: _userEmailController,
                     prefixIcon: Icon(Icons.email),
-                    label: 'Correo Electrónico',
+                    label: 'Correo Electrónico de Contacto',
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       return validateEmail(value);

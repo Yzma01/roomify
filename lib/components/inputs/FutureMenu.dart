@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roomify/components/inputs/MultiComboBox.dart'; // Ajustá si es necesario
+import 'package:roomify/components/inputs/MultiComboBox.dart';
 
 class FutureMenu extends StatelessWidget {
   final Future<List<String>> items;

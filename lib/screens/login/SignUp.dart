@@ -153,7 +153,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ComboBox(
                     items: ['Estudiante', 'Arrendatario'],
                     icon: Icons.list,
-                    label: 'Role',
+                    label: 'Rol',
                     onChanged: (value){
                       _role = value;
                     },

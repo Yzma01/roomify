@@ -156,8 +156,8 @@ class Property {
           ),
 
           _rowContent(
-            'Monto mensual',
-            '${monthlyPaymentAmount} ${monthlyPaymentType}',
+            'Monto ${monthlyPaymentType}',
+            '${monthlyPaymentAmount}',
           ),
 
           _rowContent('Depósito requerido', deposit ? 'Sí' : 'No'),
@@ -170,9 +170,12 @@ class Property {
           ),
           if (petsAllowed) ...[
             if (petsAllowedSelected?.isNotEmpty ?? false)
-              _rowContent(
-                'Tipos de mascotas permitidas',
-                petsAllowedSelected!.join(', '),
+              ...petsAllowedSelected!
+              .map(
+                (item) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(item, style: const TextStyle(fontSize: 18)),
+                ),
               ),
             if (petsAmount != null)
               _rowContent(
